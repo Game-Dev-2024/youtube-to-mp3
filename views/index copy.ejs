@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube to MP3 Converter</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <div class="container mx-auto p-8">
+    <h1 class="text-4xl font-semibold text-center text-indigo-600 mb-8">YouTube to MP3 Converter</h1>
+
+    <div class="max-w-md mx-auto mb-6">
+      <form action="/download" method="POST" class="bg-white p-6 rounded-lg shadow-lg">
+        <input type="text" name="url" placeholder="Enter YouTube URL" required class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition duration-300">Download MP3</button>
+      </form>
+    </div>
+
+    <% if (error) { %>
+      <p class="text-red-500 text-center mt-4"><%= error %></p>
+    <% } %>
+
+    <div class="mt-8">
+      <h2 class="text-3xl font-semibold mb-4 text-center">Available MP3 Files</h2>
+
+      <% if (mp3Files && mp3Files.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <% mp3Files.forEach(function(file) { %>
+            <div class="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <div class="text-center mb-4">
+                <strong class="text-xl font-semibold text-indigo-600">♪ 🎼 ♪━━━━━━━━ ♪ ♬</strong><br>
+                <strong class="text-lg text-gray-600">🎧🎶Game🎶🎧</strong><br>
+                <strong class="text-xl text-indigo-700">╰➤ <%= file.originName %></strong><br>
+                <strong class="text-lg text-gray-600">╰➤ <%= file.artist %></strong><br>
+                <strong class="text-xl font-semibold text-indigo-600">♪ 🎼 ♪━━━━━━━━ ♪ ♬</strong><br>
+              </div>
+
+              <div class="text-center">
+                <audio controls class="w-full mb-4">
+                  <source src="/downloads/<%= file.fileName %>" type="audio/mp3">
+                  Your browser does not support the audio element.
+                </audio>
+               </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p class="text-center text-gray-600">No MP3 files available.</p>
+      <% } %>
+    </div>
+  </div>
+
+</body>
+</html>

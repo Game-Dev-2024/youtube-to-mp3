@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube to MP3 Converter</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+
+
+    
+html,body {
+	padding:0;
+	margin:0;
+	background:#fafafa;
+	text-align:center;
+}
+
+body {
+	padding-top:3em;
+}
+
+h1,
+h2 {
+	margin-bottom:3rem;
+	font-family:sans-serif;
+	color:#666;
+}
+
+h2 {
+	margin-top:2em;
+}
+
+.clock {
+	position:relative;
+	font-family:monaco,consolas,"courier new",monospace;
+	font-size:3.5rem;
+	line-height:1.375;
+}
+
+.clock:before,
+.clock:after {
+	position:absolute;
+	top:0;
+	bottom:0;
+	content:':';
+	z-index:2;
+	line-height:1.15;
+	color:#333;
+}
+
+.clock:before {
+	left:2.325em;
+}
+
+.clock:after {
+	right:2.325em;
+}
+
+.clock span {
+	position:relative;
+	display:inline-block;
+	padding:0 .25em;
+	margin:0 .06125em;
+	z-index:1;
+
+	-webkit-transform:perspective(750);
+	-moz-transform:perspective(750);
+	-ms-transform:perspective(750);
+	transform:perspective(750);
+
+	-webkit-transform-style:preserve-3d;
+	-moz-transform-style:preserve-3d;
+	-ms-transform-style:preserve-3d;
+	transform-style:preserve-3d;
+}
+
+.clock span:first-child {
+	margin-left:0;
+}
+
+.clock span:last-child {
+	margin-right:0;
+}
+
+.clock span:nth-child(2),
+.clock span:nth-child(4) {
+	margin-right:.3em;
+}
+
+.clock span:nth-child(3),
+.clock span:nth-child(5) {
+	margin-left:.3em;
+}
+
+.clock span:before,
+.clock span:after {
+	position:absolute;
+	left:0;
+	top:0;
+	right:0;
+	bottom:0;
+	color:#eee;
+	text-shadow:0 1px 0 #fff;
+	background:#333;
+	border-radius:.125em;
+	outline:1px solid transparent; /* fix jagged edges in ff */
+
+	-webkit-backface-visibility:hidden;
+	-moz-backface-visibility:hidden;
+	-ms-backface-visibility:hidden;
+	backface-visibility:hidden;
+
+	-webkit-transition:-webkit-transform .75s, opacity .75s;
+	-moz-transition:-moz-transform .75s, opacity .75s;
+	-ms-transition:-ms-transform .75s, opacity .75s;
+	transition:transform .75s, opacity .75s;
+}
+
+.clock span:before {
+	opacity:1;
+	z-index:1;
+	content:attr(data-old);
+
+	-webkit-transform-origin:0 0;
+	-moz-transform-origin:0 0;
+	-ms-transform-origin:0 0;
+	transform-origin:0 0;
+
+	-webkit-transform:translate3d(0,0,0) rotateX(0);
+	-moz-transform:translate3d(0,0,0) rotateX(0);
+	-ms-transform:translate3d(0,0,0) rotateX(0);
+	transform:translate3d(0,0,0) rotateX(0);
+}
+
+.clock span:after {
+	opacity:0;
+	z-index:2;
+	content:attr(data-now);
+
+	-webkit-transform-origin:0 100%;
+	-moz-transform-origin:0 100%;
+	-ms-transform-origin:0 100%;
+	transform-origin:0 100%;
+
+	-webkit-transform:translate3d(0,-102.5%,0) rotateX(90deg);
+	-moz-transform:translate3d(0,-102.5%,0) rotateX(90deg);
+	-ms-transform:translate3d(0,-102.5%,0) rotateX(90deg);
+	transform:translate3d(0,-102.5%,0) rotateX(90deg);
+}
+
+.clock .flip:before {
+	opacity:0;
+	-webkit-transform:translate3d(0,102.5%,0) rotateX(-90deg);
+	-moz-transform:translate3d(0,102.5%,0) rotateX(-90deg);
+	-ms-transform:translate3d(0,102.5%,0) rotateX(-90deg);
+	transform:translate3d(0,102.5%,0) rotateX(-90deg);
+}
+
+.clock .flip:after {
+	opacity:1;
+	-webkit-transform:translate3d(0,0,0) rotateX(0);
+	-moz-transform:translate3d(0,0,0) rotateX(0);
+	-ms-transform:translate3d(0,0,0) rotateX(0);
+	transform:translate3d(0,0,0) rotateX(0);
+}
+.image-container {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.rotating-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: rotate 10s linear infinite;
+  z-index: 1; /* รูปภาพอยู่ด้านล่างของวงกลม */
+}
+
+.overlay-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25px; /* ปรับขนาดวงกลม */
+  height: 25px;
+  background-color: rgba(255, 255, 255); /* สีขาวโปร่งใส */
+  border-radius: 50%;
+  z-index: 2; /* ให้วงกลมอยู่เหนือรูป */
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+  </style>
+
+</head>
+<body class="bg-light bg-gradient text-dark">
+
+  <div class="container ">
+    <h1 class="text-center text-light mb-5 bg-dark p-3">List of Songs for Line OpenChat</h1>
+
+    <div class="row g-4">
+      <!-- Form Section -->
+      <div class="col-md-auto">
+        <div class="card shadow-sm mb-4 w-auto">
+          <div class="card-body text-center">
+            <!-- Profile Image -->
+            <img 
+              src="/S__10092574.jpg" 
+              alt="Profile Picture" 
+              class="rounded-circle mb-3 shadow" 
+              style="width: 150px; height: 150px; object-fit: cover;"
+            >
+            <!-- Profile Name -->
+            <h3 class="card-title mt-2 text-dark">🎧🎶 Game 🎶🎧</h3>
+            <p class="card-text text-muted">Music Lover | Audio Enthusiast</p>
+          </div>
+        </div>
+        
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form action="/download" method="POST">
+              <div class="mb-3">
+                <input type="text" name="url" placeholder="Enter YouTube URL" required 
+                  class="form-control">
+              </div>
+              <button type="submit" class="btn btn-dark w-100">Upload MP3</button>
+            </form>
+
+            <% if (error) { %>
+              <p class="text-danger text-center mt-3"><%= error %></p>
+            <% } %>
+          </div>
+        </div>
+
+
+
+<!-- Shared Audio Player -->
+<div class="mt-4 text-center">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 id="_dateSet">Mother Flippin Clock!</h1>
+      <span class="clock"></span>
+      
+    </div>
+  </div>
+</div>
+
+      </div>
+
+      <div class="col-md">
+        <!-- Shared Audio Player -->
+      <div class="mb-4 text-center">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">🎵 Now Playing 🎵</h5>
+            <audio id="audio-player" controls class="w-100 rounded">
+              <source src="" type="audio/mp3">
+              Your browser does not support the audio element.
+            </audio>
+            <p id="now-playing" class="mt-3 text-muted">No track selected</p>
+            
+            <!-- Controls for Next and Previous -->
+            <div class="d-flex justify-content-between gap-3 mt-3">
+              <button id="prev-btn" class="btn btn-outline-dark" title="Previous" onclick="changeSong(-1)">❮ Previous</button>
+              <button id="play-btn" class="btn btn-outline-dark" title="Play/Pause" onclick="togglePlayPause()">Play</button>
+              <button id="next-btn" class="btn btn-outline-dark" title="Next" onclick="changeSong(1)">Next ❯</button>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-center text-light mb-4 bg-dark p-3">Available MP3 Files</h5>
+      
+            <% if (mp3Files && mp3Files.length > 0) { %>
+              <div class="list-group" style="max-height: 600px; overflow-y: auto;">
+                <% mp3Files.forEach(function(file) { %>
+                  <div class="list-group-item d-flex justify-content-start align-items-center border rounded shadow-sm mb-3">
+                    <!-- Song Details -->
+                    <div class="me-3 d-flex align-items-center">
+                      <div class="image-container">
+                        <img 
+                          src="<%= file.fileImg %>" 
+                          alt="Cover Image" 
+                          class="rotating-image rounded-circle mb-3 shadow" 
+                          onclick="playSong('<%= file.fileName %>', '<%= file.originName %>')"
+                          style="cursor: pointer;"
+                        >
+                        <div class="overlay-circle"></div>
+                      </div>
+                    </div>
+                    
+                    <div class="ms-2">
+                      <p class="mb-1 fw-bold text-start">♪ 🎼 ♪━━━━━━━━ ♪ ♬</p>
+                      <p class="mb-1 text-start">🎧🎶 Game 🎶🎧</p>
+                      <p class="mb-1 text-start">╰➤ <%= file.originName %></p>
+                      <p class="mb-1 text-start">╰➤ <%= file.artist %></p>
+                      <p class="mb-1 fw-bold text-start">♪ 🎼 ♪━━━━━━━━ ♪ ♬</p>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 ms-auto">
+                      <button 
+                        class="btn btn-outline-dark badge rounded-circle p-3" 
+                        onclick="playSong('<%= file.fileName %>', '<%= file.originName %>')"
+                        title="Play">
+                        🎵
+                      </button>
+                      <a 
+                        href="/downloads/<%= file.fileName %>" 
+                        download="<%= file.originName %>"
+                        class="btn btn-dark badge rounded-circle p-3" 
+                        title="Download">
+                        <i class="bi bi-download"></i>
+                      </a>
+                      <button 
+                        class="btn btn-danger badge rounded-circle p-3" 
+                        onclick="deleteFile('<%= file._id %>')" 
+                        title="Delete">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+              
+            <% } else { %>
+              <p class="text-center text-muted">No MP3 files available.</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <script>
+        async function deleteFile(_id) {
+          if (confirm("Are you sure you want to delete this file?")) {
+            try {
+              const response = await fetch(`/delete/${_id}`, { method: 'DELETE' });
+              if (response.ok) {
+                alert("File deleted successfully.");
+                location.reload(); // Refresh the page to update the list
+              } else {
+                alert("Failed to delete the file.");
+              }
+            } catch (error) {
+              console.error("Error deleting file:", error);
+              alert("An error occurred while deleting the file.");
+            }
+          }
+        }
+      </script>
+      
+      
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+  <script>
+    
+var Clock = (function(){
+  document.getElementById("_dateSet").innerText = moment().format("Do MMMM YYYY");
+
+var exports = function(element) {
+  this._element = element;
+  var html = '';
+  for (var i=0;i<6;i++) {
+    html += '<span>&nbsp;</span>';
+  }
+  this._element.innerHTML = html;
+  this._slots = this._element.getElementsByTagName('span');
+  this._tick();
+};
+
+exports.prototype = {
+
+  _tick:function() {
+    var time = new Date();
+    this._update(this._pad(time.getHours()) + this._pad(time.getMinutes()) + this._pad(time.getSeconds()));
+    var self = this;
+    setTimeout(function(){
+      self._tick();
+    },1000);
+  },
+
+  _pad:function(value) {
+    return ('0' + value).slice(-2);
+  },
+
+  _update:function(timeString) {
+
+    var i=0,l=this._slots.length,value,slot,now;
+    for (;i<l;i++) {
+
+      value = timeString.charAt(i);
+      slot = this._slots[i];
+      now = slot.dataset.now;
+
+      if (!now) {
+        slot.dataset.now = value;
+        slot.dataset.old = value;
+        continue;
+      }
+
+      if (now !== value) {
+        this._flip(slot,value);
+      }
+    }
+  },
+
+  _flip:function(slot,value) {
+
+    // setup new state
+    slot.classList.remove('flip');
+    slot.dataset.old = slot.dataset.now;
+    slot.dataset.now = value;
+
+    // force dom reflow
+    slot.offsetLeft;
+
+    // start flippin
+    slot.classList.add('flip');
+
+  }
+
+};
+
+return exports;
+}());
+
+var i=0,clocks = document.querySelectorAll('.clock'),l=clocks.length;
+for (;i<l;i++) {
+new Clock(clocks[i]);
+}
+
+  </script>
+
+<script>
+    // Sample song list, you can replace this with the actual song details from your server
+    const songList = <%- JSON.stringify(mp3Files) %>;
+    let currentSongIndex = 0;
+
+    function playSong(fileName, originName) {
+      const audioPlayer = document.getElementById('audio-player');
+      const nowPlaying = document.getElementById('now-playing');
+      audioPlayer.src = `/downloads/${fileName}`;
+      nowPlaying.textContent = `Now Playing: ${originName}`;
+      audioPlayer.play();
+    }
+
+    function changeSong(direction) {
+      // Update the current song index based on the direction
+      currentSongIndex = (currentSongIndex + direction + songList.length) % songList.length;
+
+      const nextSong = songList[currentSongIndex];
+      playSong(nextSong.fileName, nextSong.originName);
+    }
+
+    // Event listener to auto play next song when the current song ends
+    document.getElementById('audio-player').addEventListener('ended', function () {
+      changeSong(1); // Play next song automatically
+    });
+    
+    function togglePlayPause() {
+      const audioPlayer = document.getElementById('audio-player');
+      const playButton = document.getElementById('play-btn');
+      
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        playButton.textContent = 'Pause';
+      } else {
+        audioPlayer.pause();
+        playButton.textContent = 'Play';
+      }
+  }
+
+
+</script>
+
+</body>
+</html>
